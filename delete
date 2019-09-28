@@ -1,0 +1,73 @@
+{
+  "outbounds": [
+    {
+      "protocol": "vmess",
+      "settings": {
+        "vnext": [
+          {
+            "address": "107.172.82.208",
+            "port": 58,
+            "users": [
+              {
+                "id": "2c0a064c-ded0-43ff-b7dc-29c0781a4ba1",
+                "alterId": 233,
+                "security": "auto"
+              }
+            ]
+          }
+        ]
+      },
+      "mux": { "enabled": true }
+    },
+    { "protocol": "freedom", "settings": {}, "tag": "direct" },
+    { "protocol": "blackhole", "settings": {}, "tag": "blocked" },
+    { "protocol": "dns", "tag": "dns-out" }
+  ],
+  "inbounds": [
+    {
+      "port": "3859",
+      "protocol": "dokodemo-door",
+      "settings": { "network": "tcp,udp", "timeout": 0, "followRedirect": true }
+    },
+    {
+      "port": 6245,
+      "tag": "dns-in",
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "119.29.29.29",
+        "port": 53,
+        "timeout": 0,
+        "network": "tcp,udp"
+      }
+    },
+    {
+      "port": 59273,
+      "protocol": "socks",
+      "settings": { "auth": "noauth", "udp": true }
+    },
+    {
+      "port": 48502,
+      "protocol": "http",
+      "settings": { "auth": "noauth", "udp": true }
+    }
+  ],
+  "dns": {
+    "servers": [
+      "1.1.1.1",
+      "1.0.0.1",
+      { "address": "119.29.29.29", "port": 53, "domains": ["geosite:cn"] },
+      "8.8.8.8",
+      "8.8.4.4",
+      "localhost"
+    ]
+  },
+  "routing": {
+    "domainStrategy": "IPOnDemand",
+    "rules": [
+      { "type": "field", "inboundTag": ["dns-in"], "outboundTag": "dns-out" },
+      { "type": "field", "ip": ["geoip:private"], "outboundTag": "blocked" },
+      { "type": "field", "ip": ["geoip:cn"], "outboundTag": "direct" },
+      { "type": "field", "domain": ["geosite:cn"], "outboundTag": "direct" }
+    ]
+  }
+}
